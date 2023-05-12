@@ -7,8 +7,6 @@ class packages (
 ) {
   include stdlib
 
-  Package { provider => $provider }
-
   # Populate using lookup command as we want to merge data from multiple hiera configs
   $pkg_remove = lookup('packages::remove', Data, 'deep', {})
   $pkg_add = lookup('packages::add', Data, 'deep', {})
@@ -45,9 +43,7 @@ class packages (
   $pkg_to_remove = unique( $list_remove - $list_add - $list_ignore )
   $pkg_to_remove.each | $pkg | {
     if $pkg != '' {
-      Package { $pkg:
-        ensure => absent,
-      }
+      ensure_packages($pkg, { ensure   => absent, provider => $provider })
     }
   }
 
@@ -55,13 +51,9 @@ class packages (
   $pkgs_to_add.each | $pkg | {
     if $pkg != '' {
       if $pkg =~ Array {
-        Package { $pkg[0]:
-          ensure => $pkg[1],
-        }
+        ensure_packages($pkg[0], { ensure => $pkg[1], provider => $provider })
       } else {
-        Package { $pkg:
-          ensure => installed,
-        }
+        ensure_packages($pkg, { ensure => present, provider => $provider })
       }
     }
   }
