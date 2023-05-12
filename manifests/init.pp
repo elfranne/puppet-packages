@@ -41,11 +41,7 @@ class packages (
 
   # Make sure we don't try to remove any we have tried to add
   $pkg_to_remove = unique( $list_remove - $list_add - $list_ignore )
-  $pkg_to_remove.each | $pkg | {
-    if $pkg != '' {
-      ensure_packages($pkg, { ensure   => absent, provider => $provider })
-    }
-  }
+  ensure_packages($pkg_to_remove, { ensure   => absent, provider => $provider })
 
   $pkgs_to_add = unique( $list_add - $list_ignore )
   $pkgs_to_add.each | $pkg | {
@@ -53,7 +49,7 @@ class packages (
       if $pkg =~ Array {
         ensure_packages($pkg[0], { ensure => $pkg[1], provider => $provider })
       } else {
-        ensure_packages($pkg, { ensure => present, provider => $provider })
+        ensure_packages($pkgs_to_add, { ensure => present, provider => $provider })
       }
     }
   }
